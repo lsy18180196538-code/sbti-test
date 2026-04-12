@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SBTI 人格测试 | 你是哪种人？</title>
+<style>
+  :root {
+    --primary: #7c3aed;
+    --secondary: #ec4899;
+    --accent: #06b6d4;
+    --bg: #0f0a1e;
+    --card: #1a1030;
+    --text: #f0e6ff;
+    --muted: #9b8db0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 背景动态粒子 */
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(6,182,212,0.08) 0%, transparent 60%);
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===================== 欢迎页 ===================== */
+  #page-intro {
+    text-align: center;
+    padding-top: 40px;
+  }
+
+  .logo-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    padding: 6px 18px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    box-shadow: 0 0 30px rgba(236,72,153,0.4);
+  }
+
+  .intro-title {
+    font-size: clamp(42px, 10vw, 72px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #c084fc, #f472b6, #67e8f9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .intro-subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .intro-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 420px;
+    margin: 0 auto 40px;
+  }
+
+  .intro-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #c084fc, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .btn-start {
+    display: inline-block;
+    padding: 18px 56px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none;
+    border-radius: 99px;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 8px 40px rgba(124,58,237,0.5);
+    transition: all 0.3s;
+    letter-spacing: 1px;
+  }
+
+  .btn-start:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 50px rgba(124,58,237,0.7);
+  }
+
+  .btn-start:active { transform: translateY(0); }
+
+  .type-preview {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 48px;
+  }
+
+  .type-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ===================== 测试页 ===================== */
+  #page-test { display: none; }
+
+  .progress-bar-wrap {
+    margin-bottom: 32px;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .dim-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .question-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 24px;
+    padding: 32px 28px 28px;
+    margin-bottom: 20px;
+    transition: all 0.4s;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.3);
+  }
+
+  .question-num {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .question-text {
+    font-size: clamp(17px, 4vw, 21px);
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-align: left;
+    color: var(--text);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.25s;
+    line-height: 1.5;
+  }
+
+  .option-btn:hover {
+    background: rgba(124,58,237,0.15);
+    border-color: var(--primary);
+    transform: translateX(4px);
+  }
+
+  .option-btn.selected {
+    background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(236,72,153,0.2));
+    border-color: var(--secondary);
+    box-shadow: 0 0 20px rgba(236,72,153,0.2);
+  }
+
+  .option-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-right: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-btns {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  .btn-nav {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .btn-prev {
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+
+  .btn-prev:hover { background: rgba(255,255,255,0.1); }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+  }
+
+  .btn-next:hover { box-shadow: 0 6px 30px rgba(124,58,237,0.6); transform: translateY(-1px); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ===================== 结果页 ===================== */
+  #page-result { display: none; }
+
+  .result-header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-top: 20px;
+  }
+
+  .result-type-label {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .result-type-code {
+    font-size: clamp(56px, 14vw, 80px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #c084fc, #f472b6, #67e8f9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    letter-spacing: 4px;
+  }
+
+  .result-type-name {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 800;
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+
+  .result-type-en {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 0;
+  }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 24px;
+    padding: 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.3);
+  }
+
+  .result-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .result-desc {
+    font-size: 15px;
+    line-height: 1.9;
+    color: rgba(240,230,255,0.9);
+  }
+
+  .traits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .trait-item {
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .trait-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+  .dim-bars { display: flex; flex-direction: column; gap: 14px; }
+
+  .dim-bar-row { }
+
+  .dim-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 5px;
+    color: var(--muted);
+  }
+
+  .dim-bar-labels span:first-child { color: var(--text); font-weight: 600; }
+
+  .dim-bar-track {
+    height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .dim-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .famous-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .famous-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+
+  .result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .btn-share {
+    width: 100%;
+    padding: 18px;
+    border-radius: 99px;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 1px;
+  }
+
+  .btn-copy {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    box-shadow: 0 8px 30px rgba(124,58,237,0.4);
+  }
+
+  .btn-copy:hover { box-shadow: 0 12px 40px rgba(124,58,237,0.6); transform: translateY(-2px); }
+
+  .btn-retry {
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .btn-retry:hover { background: rgba(255,255,255,0.1); }
+
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(124,58,237,0.95);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 99px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* 动画 */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up {
+    animation: fadeUp 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* 滚动条美化 */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.4); border-radius: 99px; }
+
+  @media (max-width: 400px) {
+    .intro-stats { gap: 20px; }
+    .question-card { padding: 24px 20px; }
+    .traits-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="container">
+
+  <!-- ===== 欢迎页 ===== -->
+  <div id="page-intro" class="fade-up">
+    <div class="logo-badge">✦ SBTI · 人格测试</div>
+    <h1 class="intro-title">SBTI</h1>
+    <p class="intro-subtitle">你真正是哪种人？</p>
+    <p class="intro-desc">
+      基于社交行为、决策模式、思维方式与情绪感知<br>
+      24道题 · 科学分析 · 精准定位你的人格类型
+    </p>
+    <div class="intro-stats">
+      <div class="stat-item">
+        <div class="stat-num">16</div>
+        <div class="stat-label">人格类型</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">24</div>
+        <div class="stat-label">测试题目</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3min</div>
+        <div class="stat-label">完成时间</div>
+      </div>
+    </div>
+    <button class="btn-start" onclick="startTest()">开始测试 →</button>
+    <div class="type-preview">
+      <span class="type-chip">🦋 社牛探险家</span>
+      <span class="type-chip">🌙 独行思考者</span>
+      <span class="type-chip">🔥 冲劲实干家</span>
+      <span class="type-chip">🌊 感性艺术魂</span>
+      <span class="type-chip">⚡ 理性策略师</span>
+      <span class="type-chip">🌸 温暖治愈系</span>
+      <span class="type-chip">🎯 冷静掌控者</span>
+      <span class="type-chip">🌈 自由飞翔派</span>
+    </div>
+  </div>
+
+  <!-- ===== 测试页 ===== -->
+  <div id="page-test">
+    <div class="progress-bar-wrap">
+      <div class="progress-info">
+        <span id="q-counter">第 1 题 / 共 24 题</span>
+        <span id="q-dim-label">社交维度</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <div class="question-num" id="q-num"></div>
+      <div class="question-text" id="q-text"></div>
+      <div class="options-grid" id="options-grid"></div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-nav btn-prev" onclick="prevQ()">← 上一题</button>
+      <button class="btn-nav btn-next" id="btn-next" onclick="nextQ()" disabled>下一题 →</button>
+    </div>
+  </div>
+
+  <!-- ===== 结果页 ===== -->
+  <div id="page-result">
+    <div class="result-header fade-up">
+      <div class="result-type-label">你的 SBTI 人格类型</div>
+      <div class="result-type-code" id="res-code"></div>
+      <div class="result-type-name" id="res-name"></div>
+      <div class="result-type-en" id="res-en"></div>
+    </div>
+
+    <div class="result-card fade-up" style="animation-delay:0.1s">
+      <div class="result-card-title">📋 人格解读</div>
+      <div class="result-desc" id="res-desc"></div>
+    </div>
+
+    <div class="result-card fade-up" style="animation-delay:0.15s">
+      <div class="result-card-title">✨ 核心特质</div>
+      <div class="traits-grid" id="res-traits"></div>
+    </div>
+
+    <div class="result-card fade-up" style="animation-delay:0.2s">
+      <div class="result-card-title">📊 维度分析</div>
+      <div class="dim-bars" id="res-bars"></div>
+    </div>
+
+    <div class="result-card fade-up" style="animation-delay:0.25s">
+      <div class="result-card-title">🌟 同类型代表人物</div>
+      <div class="famous-list" id="res-famous"></div>
+    </div>
+
+    <div class="result-actions fade-up" style="animation-delay:0.3s">
+      <button class="btn-share btn-copy" onclick="copyResult()">📋 复制结果去分享</button>
+      <button class="btn-share btn-retry" onclick="retryTest()">🔄 重新测试</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== 题目数据 =====================
+const questions = [
+  // 维度 S/I (社交 Social vs 独处 Introvert)
+  { dim: 'SI', direction: 'S', dimName: '社交维度',
+    text: '周五晚上突然有朋友说"要不要出来聚聚"，你的第一反应是？',
+    options: [
+      { text: '哇太好了！立刻换衣服出门那种', score: 4 },
+      { text: '还行吧，想想看去不去', score: 3 },
+      { text: '有点想去但也有点累……', score: 2 },
+      { text: '在家躺着不好吗，谢谢再联系', score: 1 }
+    ]
+  },
+  { dim: 'SI', direction: 'S', dimName: '社交维度',
+    text: '在一个认识的人很少的聚会上，你通常会？',
+    options: [
+      { text: '主动找人聊，不认识正好交新朋友', score: 4 },
+      { text: '找到一个人聊深了就够了', score: 3 },
+      { text: '基本待在角落等熟人来找我', score: 2 },
+      { text: '想找个理由提前离开', score: 1 }
+    ]
+  },
+  { dim: 'SI', direction: 'S', dimName: '社交维度',
+    text: '一个人独处一整天之后，你感觉？',
+    options: [
+      { text: '有点憋，想找人说说话', score: 4 },
+      { text: '还好，但后面想出去转转', score: 3 },
+      { text: '挺爽的，偶尔这样不错', score: 2 },
+      { text: '完美，我可以这样过一辈子', score: 1 }
+    ]
+  },
+  { dim: 'SI', direction: 'S', dimName: '社交维度',
+    text: '在群里发了一条消息结果没人回，你会？',
+    options: [
+      { text: '继续刷存在感，@人', score: 4 },
+      { text: '撤了重发或补充一条', score: 3 },
+      { text: '尴尬但装作没事', score: 2 },
+      { text: '沉默，感觉没必要发', score: 1 }
+    ]
+  },
+  { dim: 'SI', direction: 'S', dimName: '社交维度',
+    text: '你在公共场合的状态通常是？',
+    options: [
+      { text: '状态爆炸，能量加倍充电', score: 4 },
+      { text: '还行，取决于身边的人', score: 3 },
+      { text: '有点消耗，回家才能缓', score: 2 },
+      { text: '默默观察，尽量少说话', score: 1 }
+    ]
+  },
+  { dim: 'SI', direction: 'S', dimName: '社交维度',
+    text: '下班/放学后，你最想做的事？',
+    options: [
+      { text: '找朋友吃饭聊天', score: 4 },
+      { text: '看看有没有人约，没有就在家', score: 3 },
+      { text: '一个人听歌散步', score: 2 },
+      { text: '回家躺着，谁都不想见', score: 1 }
+    ]
+  },
+
+  // 维度 B/T (冲劲 Bold vs 稳重 Thoughtful)
+  { dim: 'BT', direction: 'B', dimName: '决策维度',
+    text: '朋友突然说"走，明天去XX旅游"，你的反应？',
+    options: [
+      { text: '好啊！说走就走，收拾东西了', score: 4 },
+      { text: '有点心动，问问细节', score: 3 },
+      { text: '考虑一下，看看情况', score: 2 },
+      { text: '这么突然……我得提前规划好才行', score: 1 }
+    ]
+  },
+  { dim: 'BT', direction: 'B', dimName: '决策维度',
+    text: '买东西的时候你通常？',
+    options: [
+      { text: '喜欢就下单，过了手感就没了', score: 4 },
+      { text: '想想觉得可以就买', score: 3 },
+      { text: '收藏好，过几天看看还想不想要', score: 2 },
+      { text: '比价、看测评、问朋友，确认值才买', score: 1 }
+    ]
+  },
+  { dim: 'BT', direction: 'B', dimName: '决策维度',
+    text: '遇到有人不尊重你，你会？',
+    options: [
+      { text: '当场就怼回去，忍不住', score: 4 },
+      { text: '当时可能不说，但事后会处理', score: 3 },
+      { text: '内心翻涌，表面平静', score: 2 },
+      { text: '想想算了，不值得浪费时间', score: 1 }
+    ]
+  },
+  { dim: 'BT', direction: 'B', dimName: '决策维度',
+    text: '你制定计划的方式是？',
+    options: [
+      { text: '什么计划，走一步看一步', score: 4 },
+      { text: '大概想一下，细节随机应变', score: 3 },
+      { text: '简单列个清单', score: 2 },
+      { text: '详细规划，备用方案都想好', score: 1 }
+    ]
+  },
+  { dim: 'BT', direction: 'B', dimName: '决策维度',
+    text: '你对待新事物的态度是？',
+    options: [
+      { text: '第一个冲，不试怎么知道', score: 4 },
+      { text: '看起来有意思就尝试', score: 3 },
+      { text: '等别人试了我再考虑', score: 2 },
+      { text: '习惯的东西不想换，新的不一定好', score: 1 }
+    ]
+  },
+  { dim: 'BT', direction: 'B', dimName: '决策维度',
+    text: '你做重大决定时（换工作、搬家等）？',
+    options: [
+      { text: '跟着感觉走，先行动再说', score: 4 },
+      { text: '想清楚大方向就去做', score: 3 },
+      { text: '要考虑很久，可能拖', score: 2 },
+      { text: '要把所有风险都想清楚才能动', score: 1 }
+    ]
+  },
+
+  // 维度 T/F (理性 Thinking vs 感性 Feeling)
+  { dim: 'TF', direction: 'T', dimName: '思维维度',
+    text: '朋友向你倾诉烦恼，你更倾向于？',
+    options: [
+      { text: '帮他分析问题，给出建议方案', score: 4 },
+      { text: '先给建议，也顺便安慰一下', score: 3 },
+      { text: '先陪他情绪，再聊怎么解决', score: 2 },
+      { text: '不急着给建议，先抱抱他', score: 1 }
+    ]
+  },
+  { dim: 'TF', direction: 'T', dimName: '思维维度',
+    text: '看一部让你哭的电影，你事后会？',
+    options: [
+      { text: '分析剧情逻辑，觉得某处不合理', score: 4 },
+      { text: '讨论主题意义，也聊聊感动的地方', score: 3 },
+      { text: '回味里面的情感，想起一些事', score: 2 },
+      { text: '情绪久久不散，沉浸好几天', score: 1 }
+    ]
+  },
+  { dim: 'TF', direction: 'T', dimName: '思维维度',
+    text: '在团队中，你通常扮演的角色是？',
+    options: [
+      { text: '推进进度、理清思路的人', score: 4 },
+      { text: '既能出主意也关注大家状态', score: 3 },
+      { text: '协调气氛、照顾情绪的人', score: 2 },
+      { text: '默默支持大家的人', score: 1 }
+    ]
+  },
+  { dim: 'TF', direction: 'T', dimName: '思维维度',
+    text: '你和朋友意见不同时？',
+    options: [
+      { text: '据理力争，觉得对的就该说', score: 4 },
+      { text: '说出自己的看法，也听听对方', score: 3 },
+      { text: '先照顾一下感受，再慢慢说我的想法', score: 2 },
+      { text: '不想破坏气氛，算了让对方说', score: 1 }
+    ]
+  },
+  { dim: 'TF', direction: 'T', dimName: '思维维度',
+    text: '你评价一件事好不好时，更看重？',
+    options: [
+      { text: '逻辑是否自洽，结果是否有效', score: 4 },
+      { text: '理性判断为主，但也看感受', score: 3 },
+      { text: '感受为主，但也考虑实际效果', score: 2 },
+      { text: '这件事有没有让我或别人感到好', score: 1 }
+    ]
+  },
+  { dim: 'TF', direction: 'T', dimName: '思维维度',
+    text: '当你难过时，更希望别人怎么对你？',
+    options: [
+      { text: '帮我分析问题在哪，怎么解决', score: 4 },
+      { text: '说点实际的建议，也安慰一下', score: 3 },
+      { text: '先陪着我，不用讲道理', score: 2 },
+      { text: '抱着我什么都不用说', score: 1 }
+    ]
+  },
+
+  // 维度 J/P (计划 Judging vs 随性 Perceiving)
+  { dim: 'JP', direction: 'J', dimName: '生活维度',
+    text: '你的手机桌面/房间状态通常是？',
+    options: [
+      { text: '分类整齐，文件夹命名都规范', score: 4 },
+      { text: '大致整洁，常用的好找就行', score: 3 },
+      { text: '有点乱，但我知道东西在哪', score: 2 },
+      { text: '看起来很乱但其实……真的很乱', score: 1 }
+    ]
+  },
+  { dim: 'JP', direction: 'J', dimName: '生活维度',
+    text: '在 deadline 前你通常？',
+    options: [
+      { text: '提前很多搞完，不拖的', score: 4 },
+      { text: '中间完成，不会拖到最后一天', score: 3 },
+      { text: '最后几天冲刺，但还好', score: 2 },
+      { text: 'deadline 之前那一晚才开始', score: 1 }
+    ]
+  },
+  { dim: 'JP', direction: 'J', dimName: '生活维度',
+    text: '出去旅游，你倾向于？',
+    options: [
+      { text: '提前订好所有的，攻略做满', score: 4 },
+      { text: '主要景点预定好，其他随缘', score: 3 },
+      { text: '大概方向定了，细节到时再说', score: 2 },
+      { text: '订个交通就出发了，随便逛', score: 1 }
+    ]
+  },
+  { dim: 'JP', direction: 'J', dimName: '生活维度',
+    text: '你的待办事项通常？',
+    options: [
+      { text: '有详细的 to-do list，完成了就划掉', score: 4 },
+      { text: '记几个重要的，其他靠脑子', score: 3 },
+      { text: '有时候记有时候忘记记', score: 2 },
+      { text: '什么 to-do list，我信脑子', score: 1 }
+    ]
+  },
+  { dim: 'JP', direction: 'J', dimName: '生活维度',
+    text: '被临时改变计划，你会？',
+    options: [
+      { text: '有点烦，我已经安排好了', score: 4 },
+      { text: '不太喜欢，但能接受', score: 3 },
+      { text: '无所谓，反正也没计划得很死', score: 2 },
+      { text: '没关系，反正我也没啥计划', score: 1 }
+    ]
+  },
+  { dim: 'JP', direction: 'J', dimName: '生活维度',
+    text: '对你来说，理想的一天是？',
+    options: [
+      { text: '按计划完成所有事，不拖', score: 4 },
+      { text: '完成重要的，其他灵活', score: 3 },
+      { text: '跟着感觉走，想做啥做啥', score: 2 },
+      { text: '完全不计划，随机应变', score: 1 }
+    ]
+  }
+];
+
+// ===================== 16种人格类型 =====================
+const personalities = {
+  SBTJ: {
+    name: '社牛整顿官', en: 'The Bold Commander',
+    emoji: '⚡',
+    desc: '你是那种走进房间就能掌控全场的人。社交能量爆棚，敢说敢做，还特别有计划性。朋友圈里的"统治者"，群里永远是你活跃气氛又推进事情落地。缺点是有时候太强势，让人有点压力。',
+    traits: [
+      { icon: '👑', text: '天生领导力，说到做到' },
+      { icon: '💬', text: '社交能量满格，人缘超好' },
+      { icon: '🎯', text: '目标感强，执行力拉满' },
+      { icon: '⚡', text: '行动力远超普通人' }
+    ],
+    famous: ['马云', '埃隆·马斯克', '成吉思汗'],
+    colors: ['#7c3aed', '#ec4899']
+  },
+  SBTP: {
+    name: '社牛冒险家', en: 'The Charismatic Explorer',
+    emoji: '🔥',
+    desc: '你是完全活在当下的人。充满感染力，交朋友超快，喜欢临时起意的旅行和派对。你的人生词典里没有"计划"两个字，但每次都能把事搞得特别热闹。让人爱死你的，就是这股劲。',
+    traits: [
+      { icon: '🔥', text: '感染力爆棚，到哪都是焦点' },
+      { icon: '🌍', text: '喜欢冒险，随时说走就走' },
+      { icon: '🎉', text: '让平凡的事变得有趣' },
+      { icon: '💫', text: '活在当下，每天都是新的开始' }
+    ],
+    famous: ['周杰伦', '王嘉尔', 'Lady Gaga'],
+    colors: ['#f59e0b', '#ef4444']
+  },
+  SBTF: {
+    name: '社牛感知者', en: 'The Empathetic Socialite',
+    emoji: '🌈',
+    desc: '你是那种让人一见面就觉得很舒服的人。既外向又感性，既能high翻全场又能在朋友崩溃时第一个到场。你拥有罕见的"能嗨能稳"双形态，朋友圈里最受欢迎的那一个。',
+    traits: [
+      { icon: '🌈', text: '既能high翻全场又懂得共情' },
+      { icon: '🤗', text: '朋友的情绪雷达，秒懂别人' },
+      { icon: '✨', text: '有一种神奇的治愈力' },
+      { icon: '🌺', text: '温暖真实，让人想靠近' }
+    ],
+    famous: ['泰勒·斯威夫特', '赵露思', 'BTS RM'],
+    colors: ['#06b6d4', '#8b5cf6']
+  },
+  SBFF: {
+    name: '社牛治愈系', en: 'The Warm Connector',
+    emoji: '🌸',
+    desc: '你是所有人都想要的那种朋友。超级外向，但又超级温柔。永远第一个发现身边人不对劲，永远第一个伸出手。你的存在本身就是一种治愈，朋友们都把你当情绪充电站。',
+    traits: [
+      { icon: '🌸', text: '天然的治愈属性' },
+      { icon: '👂', text: '最好的倾听者' },
+      { icon: '💞', text: '无论去哪都有人喜欢你' },
+      { icon: '🕊️', text: '化解冲突的和平使者' }
+    ],
+    famous: ['孙燕姿', '范冰冰', 'Oprah Winfrey'],
+    colors: ['#ec4899', '#f472b6']
+  },
+  IFTJ: {
+    name: '内省策略师', en: 'The Strategic Mastermind',
+    emoji: '🧠',
+    desc: '你是那种沉默但极其有力量的人。不爱社交，但观察力和规划力惊人。别人还在聊的时候，你已经想好三步棋了。独处是你最高效的状态，脑子从来不停转。',
+    traits: [
+      { icon: '🧠', text: '逻辑清晰，战略眼光极强' },
+      { icon: '🎯', text: '目标感强，不走弯路' },
+      { icon: '🌑', text: '独处出效率，不需要刺激' },
+      { icon: '🔬', text: '观察细微，一眼看穿本质' }
+    ],
+    famous: ['马克·扎克伯格', '沃伦·巴菲特', '诸葛亮'],
+    colors: ['#1e40af', '#7c3aed']
+  },
+  IFTP: {
+    name: '独行冒险者', en: 'The Free-Spirit Thinker',
+    emoji: '🌙',
+    desc: '你是一个自带神秘感的人。独来独往，思维跳脱，喜欢做一些别人看不懂的事。你不在乎主流，只做自己觉得有意思的事。认识你的人都觉得你"怪怪的"，但越了解越着迷。',
+    traits: [
+      { icon: '🌙', text: '独特的内在世界，自成一派' },
+      { icon: '🎨', text: '天马行空的创造力' },
+      { icon: '🦅', text: '不在乎他人眼光' },
+      { icon: '💡', text: '时常有让人惊艳的点子' }
+    ],
+    famous: ['爱因斯坦', '尼古拉·特斯拉', '村上春树'],
+    colors: ['#0891b2', '#6d28d9']
+  },
+  IFFJ: {
+    name: '月亮守护者', en: 'The Quiet Guardian',
+    emoji: '🌕',
+    desc: '你像月亮一样，不发光但能照亮别人。内向、感性、有计划，默默把身边的人照顾得很好。你不需要被看见，但你总是那个在重要时刻出现的人。朋友眼里的"无声英雄"。',
+    traits: [
+      { icon: '🌕', text: '深沉的情感，照亮身边的人' },
+      { icon: '🤫', text: '默默付出，不求回报' },
+      { icon: '📚', text: '内心世界极其丰富' },
+      { icon: '🌿', text: '稳定可靠，是朋友的安全感' }
+    ],
+    famous: ['村上春树', '宫崎骏', 'J.K.罗琳'],
+    colors: ['#059669', '#0284c7']
+  },
+  IFFP: {
+    name: '感性漂流者', en: 'The Dreamy Soul',
+    emoji: '🌊',
+    desc: '你活在一个只有自己才能进入的世界里。感性、内向、随性，情绪像海浪，一会儿风平浪静，一会儿惊涛骇浪。你写的东西会让人哭，你画的东西会让人停住脚步。艺术圈天花板。',
+    traits: [
+      { icon: '🌊', text: '情感深邃，极度感性' },
+      { icon: '🎭', text: '天生的艺术家气质' },
+      { icon: '🌿', text: '和自然、动物超级亲近' },
+      { icon: '💫', text: '有种莫名的迷人气场' }
+    ],
+    famous: ['梵高', '林徽因', 'Billie Eilish'],
+    colors: ['#7c3aed', '#06b6d4']
+  },
+  SFTJ: {
+    name: '社交理性家', en: 'The Methodical Leader',
+    emoji: '💼',
+    desc: '你是最让人放心的那种人。既能活跃气氛，又绝对靠谱。理性处理问题，有条不紊，同时又能让团队感觉舒适。你不是最炸的那个，但每次都是最后把事搞定的那个。',
+    traits: [
+      { icon: '💼', text: '靠谱踏实，是团队的定海神针' },
+      { icon: '📊', text: '数据和逻辑是你的语言' },
+      { icon: '🤝', text: '社交不累，但会有选择' },
+      { icon: '⏰', text: '守时守诺，说到做到' }
+    ],
+    famous: ['奥巴马', '李彦宏', 'Tim Cook'],
+    colors: ['#0369a1', '#7c3aed']
+  },
+  SFTP: {
+    name: '社交实验家', en: 'The Pragmatic Explorer',
+    emoji: '🔭',
+    desc: '你是边聊边想的那种人。喜欢社交，但不甩套路，每次聊天都是真实输出。喜欢用实际行动验证想法，不喜欢纸上谈兵。你走过的地方、认识的人，都是你的灵感来源。',
+    traits: [
+      { icon: '🔭', text: '好奇心驱动，永远在探索' },
+      { icon: '🛠️', text: '动手能力强，理论不如实干' },
+      { icon: '🗺️', text: '社交中积累资源和见识' },
+      { icon: '⚙️', text: '解决问题的能力异常强' }
+    ],
+    famous: ['乔布斯', '李白', 'Richard Feynman'],
+    colors: ['#0891b2', '#f59e0b']
+  },
+  SFFJ: {
+    name: '社交温暖官', en: 'The Caring Organizer',
+    emoji: '☀️',
+    desc: '你就是那个"有你在就不一样"的人。把聚会操持得漂漂亮亮，记得每个朋友的生日，知道谁最近过得不好。用心、有条理、温暖——你是人群里的太阳，散发热量不求回报。',
+    traits: [
+      { icon: '☀️', text: '走到哪里就温暖到哪里' },
+      { icon: '🎁', text: '最记得别人需要什么' },
+      { icon: '🏠', text: '给朋友圈创造家的感觉' },
+      { icon: '📅', text: '有计划地爱每一个人' }
+    ],
+    famous: ['赵丽颖', '郭德纲', 'Dolly Parton'],
+    colors: ['#f59e0b', '#ec4899']
+  },
+  SFFP: {
+    name: '自由飞翔派', en: 'The Playful Spirit',
+    emoji: '🦋',
+    desc: '你是最鲜活的那种人。又社交又感性又随性，每天的心情和能量都是新的。你不给自己设框架，也不给别人设框架。你的朋友圈是最热闹的，你的故事是最精彩的。',
+    traits: [
+      { icon: '🦋', text: '自由灵魂，拒绝一切束缚' },
+      { icon: '🎠', text: '让身边的人都觉得有趣' },
+      { icon: '💃', text: '随时随地都能进入状态' },
+      { icon: '🌺', text: '感性又不失温度' }
+    ],
+    famous: ['王菲', 'Beyoncé', '陈奕迅'],
+    colors: ['#8b5cf6', '#f472b6']
+  },
+  IBTJ: {
+    name: '冷静掌控者', en: 'The Tactical Strategist',
+    emoji: '🎯',
+    desc: '你是最让对手害怕的那种人。独行、理性、有计划、敢冲。沉默寡言但每句话都有分量。你不需要社交维持影响力，你的成果会替你说话。永远在暗中观察，一出手就是狠招。',
+    traits: [
+      { icon: '🎯', text: '目标精准，执行不拖' },
+      { icon: '🗡️', text: '独立作战能力极强' },
+      { icon: '🔮', text: '总能比别人看远一步' },
+      { icon: '🌑', text: '低调但有力量' }
+    ],
+    famous: ['雷军', '比尔·盖茨', '拿破仑'],
+    colors: ['#111827', '#7c3aed']
+  },
+  IBTP: {
+    name: '孤独冒险家', en: 'The Rogue Trailblazer',
+    emoji: '⚡',
+    desc: '你是走在所有人前面的那种人。不合群，但不是因为格格不入，而是因为你的步伐太快了。你喜欢一个人去陌生的地方，做没人做过的事。别人追不上你，你也不等。',
+    traits: [
+      { icon: '⚡', text: '快人快语，速度惊人' },
+      { icon: '🚀', text: '敢做第一个吃螃蟹的人' },
+      { icon: '🧩', text: '脑子比嘴快，点子永远不缺' },
+      { icon: '🦁', text: '内心有一股野劲' }
+    ],
+    famous: ['马斯克', '许嵩', 'Steve Wozniak'],
+    colors: ['#0891b2', '#7c3aed']
+  },
+  IBTF: {
+    name: '理性暗流者', en: 'The Analytical Empath',
+    emoji: '🌊',
+    desc: '你是矛盾体里最美的那种。理性分析、独处高效，但又有惊人的感受力。你能看见别人看不见的情绪，却用逻辑解读它。你不主动打扰任何人，但需要你的时候你永远在。',
+    traits: [
+      { icon: '🌊', text: '理性外表下藏着丰富感情' },
+      { icon: '🔬', text: '分析力与感知力同样出色' },
+      { icon: '🌙', text: '独处时输出大量价值' },
+      { icon: '🎭', text: '懂人心，但不轻易动心' }
+    ],
+    famous: ['周杰伦', '刘慈欣', 'Sherlock Holmes'],
+    colors: ['#1e3a5f', '#7c3aed']
+  },
+  IBFF: {
+    name: '深渊艺术家', en: 'The Profound Creator',
+    emoji: '🎨',
+    desc: '你是最难被定义的人。内向、冲劲、感性、随性——这四个字加在一起就是你。你活在自己的宇宙里，创作出让人震撼的东西，然后默默消失。没有人完全理解你，但每个人都着迷于你。',
+    traits: [
+      { icon: '🎨', text: '艺术创造力到达天花板' },
+      { icon: '🌀', text: '内心像宇宙一样复杂' },
+      { icon: '🔥', text: '爆发力惊人，潜力无限' },
+      { icon: '🦄', text: '独一无二，无法复制' }
+    ],
+    famous: ['张国荣', '卡夫卡', 'Kurt Cobain'],
+    colors: ['#4c1d95', '#831843']
+  }
+};
+
+// ===================== 测试逻辑 =====================
+let currentQ = 0;
+let answers = new Array(questions.length).fill(null);
+let scores = { SI: 0, BT: 0, TF: 0, JP: 0 };
+
+function startTest() {
+  document.getElementById('page-intro').style.display = 'none';
+  document.getElementById('page-test').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('q-counter').textContent = `第 ${currentQ + 1} 题 / 共 ${questions.length} 题`;
+  document.getElementById('q-dim-label').textContent = q.dimName;
+  document.getElementById('q-num').textContent = `Q${currentQ + 1}`;
+  document.getElementById('q-text').textContent = q.text;
+
+  const pct = (currentQ / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const labels = ['A', 'B', 'C', 'D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (answers[currentQ] === i ? ' selected' : '');
+    btn.innerHTML = `<span class="option-label">${labels[i]}</span>${opt.text}`;
+    btn.onclick = () => selectOption(i);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('btn-next').disabled = answers[currentQ] === null;
+  document.getElementById('btn-next').textContent = currentQ === questions.length - 1 ? '查看结果 ✨' : '下一题 →';
+}
+
+function selectOption(idx) {
+  answers[currentQ] = idx;
+  document.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQ() {
+  if (answers[currentQ] === null) return;
+  if (currentQ === questions.length - 1) {
+    calcResult();
+    return;
+  }
+  currentQ++;
+  renderQuestion();
+  document.querySelector('.question-card').classList.remove('fade-up');
+  void document.querySelector('.question-card').offsetWidth;
+  document.querySelector('.question-card').classList.add('fade-up');
+}
+
+function prevQ() {
+  if (currentQ === 0) return;
+  currentQ--;
+  renderQuestion();
+}
+
+function calcResult() {
+  // 重置分数
+  scores = { SI: 0, BT: 0, TF: 0, JP: 0 };
+
+  questions.forEach((q, i) => {
+    if (answers[i] !== null) {
+      scores[q.dim] += questions[i].options[answers[i]].score;
+    }
+  });
+
+  // 每维度满分 4*6=24，中间值12
+  const dimResult = {
+    SI: scores.SI >= 13 ? 'S' : 'I',
+    BT: scores.BT >= 13 ? 'B' : 'T',
+    TF: scores.TF >= 13 ? 'T' : 'F',  // T高分=理性
+    JP: scores.JP >= 13 ? 'J' : 'P'
+  };
+
+  const typeCode = dimResult.SI + dimResult.BT + dimResult.TF + dimResult.JP;
+
+  // fallback
+  const p = personalities[typeCode] || personalities['SFFP'];
+
+  showResult(typeCode, p, dimResult, scores);
+}
+
+function showResult(code, p, dimResult, scores) {
+  document.getElementById('page-test').style.display = 'none';
+  document.getElementById('page-result').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  document.getElementById('res-code').textContent = code;
+  document.getElementById('res-name').textContent = p.emoji + ' ' + p.name;
+  document.getElementById('res-en').textContent = p.en;
+  document.getElementById('res-desc').textContent = p.desc;
+
+  // 特质
+  const traitsEl = document.getElementById('res-traits');
+  traitsEl.innerHTML = p.traits.map(t =>
+    `<div class="trait-item"><span class="trait-icon">${t.icon}</span>${t.text}</div>`
+  ).join('');
+
+  // 维度条
+  const barsEl = document.getElementById('res-bars');
+  const dims = [
+    { label1: 'S 社牛', label2: 'I 独处', score: scores.SI, max: 24 },
+    { label1: 'B 冲劲', label2: 'T 稳重', score: scores.BT, max: 24 },
+    { label1: 'T 理性', label2: 'F 感性', score: scores.TF, max: 24 },
+    { label1: 'J 计划', label2: 'P 随性', score: scores.JP, max: 24 },
+  ];
+  const barColors = [
+    ['#7c3aed', '#ec4899'],
+    ['#f59e0b', '#ef4444'],
+    ['#0891b2', '#7c3aed'],
+    ['#059669', '#06b6d4'],
+  ];
+  barsEl.innerHTML = dims.map((d, i) => {
+    const pct = Math.round((d.score / d.max) * 100);
+    return `
+      <div class="dim-bar-row">
+        <div class="dim-bar-labels">
+          <span>${d.label1} ${pct}%</span>
+          <span>${d.label2} ${100-pct}%</span>
+        </div>
+        <div class="dim-bar-track">
+          <div class="dim-bar-fill" style="width:0%;background:linear-gradient(90deg,${barColors[i][0]},${barColors[i][1]})" data-pct="${pct}"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 名人
+  document.getElementById('res-famous').innerHTML = p.famous.map(f =>
+    `<span class="famous-chip">${f}</span>`
+  ).join('');
+
+  // 动画延迟后启动进度条
+  setTimeout(() => {
+    document.querySelectorAll('.dim-bar-fill').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }, 300);
+
+  // 存入全局供分享
+  window._resultCode = code;
+  window._resultName = p.name;
+  window._resultDesc = p.desc;
+}
+
+function copyResult() {
+  const text = `🎯 我的 SBTI 人格类型是【${window._resultCode} · ${window._resultName}】\n\n${window._resultDesc}\n\n✨ 快去测测你是什么类型 → ${window.location.href}`;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast('✅ 已复制！快去发到你的评论区~'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✅ 已复制！快去发到你的评论区~');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function retryTest() {
+  currentQ = 0;
+  answers = new Array(questions.length).fill(null);
+  scores = { SI: 0, BT: 0, TF: 0, JP: 0 };
+  document.getElementById('page-result').style.display = 'none';
+  document.getElementById('page-intro').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
